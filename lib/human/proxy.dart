@@ -1,37 +1,53 @@
+import 'dart:async';
+
 import 'package:three_dart/three_dart.dart' as THREE;
 import 'human.dart';
 
-/**
- * parseProxyUrl
- * @param  {String} url - e.g. "data/proxies/clothes/Bikini/Bikini.json#blue"
- * @return {Object}     - e.g. {group:"clothes",name:"Bikini",file:"bikini.json", materialName:"blue"}
- */
 
-// const parseProxyUrl = (address) => {
-//     // if (!address.includes('#')) address += '#'
-//     const [fullUrl, materialName] = address.split('#')
-//     const [, , group, name, file] = fullUrl.match(/(.+\/)*(.+)\/(.+)\/(.+)\.json/)
-//     const key = `${group}/${name}/${file}.json${materialName ? `#${materialName}` : ''}`
-//     const thumbnail = `${group}/${name}/${materialName || file}.thumb.png`
-//     return { group, name, key, materialName: materialName || '', thumbnail }
-// }
+//  * parseProxyUrl
+//  * @param  {String} url - e.g. "data/proxies/clothes/Bikini/Bikini.json#blue"
+//  * @return {Object}     - e.g. {group:"clothes",name:"Bikini",file:"bikini.json", materialName:"blue"}
+
+
+Map<String,String> parseProxyUrl(String address){
+    if (!address.contains('#')) address += '#';
+    List<String?> links = address.split('#');
+    String fullUrl = links[0]!;
+    String? materialName = links[1];
+    //const [, , group, name, file] = fullUrl.match(/(.+\/)*(.+)\/(.+)\/(.+)\.json/);
+    List<String> matches = fullUrl.split('/');
+    int len = matches.length;
+    String file = matches[len-1];
+    String name = matches[len-2];
+    String group = matches[len-3];
+
+    String key = '$group/$name/$file.json${materialName ==null? '#$materialName' : ''}';
+    String thumbnail = '$group/$name/${materialName ?? file}.thumb.png';
+
+    return { 
+      'group':group, 
+      'name':name, 
+      'key':key, 
+      'materialName': materialName ?? '', 
+      'thumbnail':thumbnail
+    };
+}
 
 class Proxy extends THREE.Object3D {
   Proxy(this.url, this.human, [THREE.LoadingManager? manager]):super(){
     visible = false;
     this.manager = manager ?? THREE.LoadingManager();
     loader = THREE.FileLoader(this.manager);
-    url = '${this.human.config.baseUrl}proxies/${key}';
+    url = '${human.config.baseUrl}proxies/$key';
 
-    const { name, group, materialName, key, thumbnail } = parseProxyUrl(url);
-
-    this.key = key;
-    this.group = group;
-    this.thumbnail = thumbnail;
-    this.materialName = materialName;
+    final proxy = parseProxyUrl(url);
+    name = proxy['name']!;
+    group = proxy['group']!;
+    materialName = proxy['materialName']!; 
+    key = proxy['key']!;
+    thumbnail = proxy['thumbnail']!;
   }
 
-  String url;
   Human human;
   late THREE.FileLoader loader;
   List<double> extraGeometryScaling = [1.0, 1.0, 1.0];
@@ -39,32 +55,36 @@ class Proxy extends THREE.Object3D {
   THREE.Mesh? mesh;
   THREE.LoadingManager manager = THREE.LoadingManager();
 
+  late String key;
+  String url;
+  late String group;
+  late String thumbnail;
+  late String materialName;
+
     /** load a proxy from threejs json file, making it a child object and giving it the same skeleton **/
-    load() {
+    Future<> load() async{
+      Completer c = Completer();
         Proxy self = this;
-        if(mesh) return Promise.resolve(this.mesh);
-        return new Promise((resolve, reject) => {
-            try {
-                self.loader.load(self.url,
-                        resolve,
-                        undefined,
-                        reject
-                    )
-            } catch (e) {
-                reject(e)
-            }
-        })
-            .catch((err) => {
-                console.error('Failed to load proxy data', self.url, err)
+        if(mesh != null){ 
+          return Promise.resolve(mesh);
+        }
+
+        try {
+          mesh = ;
+        } catch (e) {
+          print(e);
+        }
+            await self.loader.loadAsync(self.url).catch((err) => {
+                print('Failed to load proxy data ${self.url}\n$err');
             })
-            .then(text => JSON.parse(text))
+            .then(JSON.parse(text))
             .then((json) => {
                 self.metadata = json.metadata
                 const texturePath = self.texturePath &&
-                    (typeof self.texturePath === 'string') ?
+                    (typeof self.texturePath == 'string') ?
                         self.texturePath :
-                        THREE.Loader.prototype.extractUrlBase(self.url)
-                return new THREE.JSONLoader().parse(json, texturePath)
+                        THREE.Loader.prototype.extractUrlBase(self.url);
+                return new THREE.JSONLoader().parse(json, texturePath);
             })
             // use unpacking here to turn one args into two, as promises only return one
             .then(({
@@ -100,9 +120,11 @@ class Proxy extends THREE.Object3D {
 
                 return mesh
             })
+
+      return c.future;
     }
 
-    /** Turn mesh on or off, loading if needed **/
+    // Turn mesh on or off, loading if needed
     bool toggle([bool? state]) {
       state ??= !visible;
       if (visible == state){ 
@@ -119,10 +141,9 @@ class Proxy extends THREE.Object3D {
       return promisedMesh.then(() => human.proxies.updateFaceMask());
     }
 
-    /**
-     * This recalculates the coords of the proxy using the vertice inds, weights, and offsets
-     * like in makehumans's proxy.py:Proxy.getCoords()
-     */
+
+    //  * This recalculates the coords of the proxy using the vertice inds, weights, and offsets
+    //  * like in makehumans's proxy.py:Proxy.getCoords()
     updatePositions() {
         // TODO faster to do this in the gpu
         // equation = vertice = w0 * v0 + w1 * v1 + w2*v2 + offset, where w0 = weights[i][0], v0 = ref_verts_i[0]

@@ -139,11 +139,11 @@ class Config{
     this.z = 0,
     this.s = 1,
     this.baseUrl = 'data/',
-    this.skins: [],
-    this.proxies: [],
-    this.poses: [],
-    this.targets: 'targets.bin',
-    this.model: 'base.json',
+    this.skins = const [],
+    this.proxies = const [],
+    this.poses = const [],
+    this.targets = 'targets.bin',
+    this.model = 'base.json',
   });
   String baseUrl;
   double x = 0;

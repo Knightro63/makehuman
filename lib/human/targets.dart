@@ -1,90 +1,94 @@
-/**
- * @name            MakeHuman
- * @copyright       MakeHuman Team 2001-2016
- * @license         [AGPL3]{@link http://www.makehuman.org/license.php}
- * @author          wassname
- * @description
- * Classes and functions to hold and manipulate morphTargets
- */
+//  * @name            MakeHuman
+//  * @copyright       MakeHuman Team 2001-2016
+//  * @license         [AGPL3]{@link http://www.makehuman.org/license.php}
+//  * @author          wassname
+//  * @description
+//  * Classes and functions to hold and manipulate morphTargets
+
 
 // TODO I want to bypass threejs morphtarget sinxe it only support 8target. ThenI canjust update the vertices
 
-import _ from 'lodash'
-import * as THREE from 'three'
-import targetList from 'makehuman-data/src/json/targets/target-list.json'
-import targetCategories from 'makehuman-data/src/json/targets/target-category-data.json'
-import {
-    invertByMany
-} from '../helpers/helpers'
+//import _ from 'lodash';
+import 'package:three_dart/three_dart.dart';
+// import targetList from 'makehuman-data/src/json/targets/target-list.json'
+// import targetCategories from 'makehuman-data/src/json/targets/target-category-data.json'
+import '../helpers/helpers.dart';
 
 class Target {
-    constructor(config) {
-        this.name = config.path
-            // this.parent = null; // prob just a tmp var from mh file warlking
-        this.path = config.path
-        this.group = config.group
+  Target(config){
+    name = config.path;
+    // this.parent = null; // prob just a tmp var from mh file warlking
+    path = config.path;
+    group = config.group;
 
-        // meta categories which each key part belongs to
-        this.categories = config.categories
-        this.variables = config.variables
-        this.macroVariables = config.macroVariables
-    }
+    // meta categories which each key part belongs to
+    categories = config.categories;
+    variables = config.variables;
+    macroVariables = config.macroVariables;
+  }
 
-    /** The variables that apply to this target component. **/
-    getVariables() {
-        // filter out null values then grab the keys of the remaining properties
-        return _.keys(_.pickBy(this.categories, _.isTrue))
-    }
+  late String name;
+  // this.parent = null; // prob just a tmp var from mh file warlking
+  late String path;
+  late String group;
+
+  // meta categories which each key part belongs to
+  late categories;
+  late variables;
+  late macroVariables;
 
 
-    /** put this targets current value into the threejs mesh's influence array **/
-    set value(val) {
-        const i = this.parent.human.morphTargetDictionary[this.name]
-        this.parent.human.morphTargetInfluences[i] = val
-    }
+  // The variables that apply to this target component.
+  getVariables() {
+    // filter out null values then grab the keys of the remaining properties
+    return _.keys(_.pickBy(this.categories, _.isTrue));
+  }
 
-    /** Get target's value from where threejs stores it **/
-    get value() {
-        const i = this.parent.human.morphTargetDictionary[this.name]
-        return this.parent.human.morphTargetInfluences[i]
-    }
+
+  // put this targets current value into the threejs mesh's influence array
+  set value(val) {
+    const i = this.parent.human.morphTargetDictionary[this.name];
+    this.parent.human.morphTargetInfluences[i] = val;
+  }
+
+  // Get target's value from where threejs stores it
+  get value() {
+    const i = this.parent.human.morphTargetDictionary[this.name];
+    return this.parent.human.morphTargetInfluences[i];
+  }
 }
 
 
-/**
- * Contains meta data about all available targets
- */
-export class TargetMetaData {
-    /**
-     * [constructor description]
-     * @param  {[type]} targetList       [description]
-     * @param  {[type]} targetCategories [description]
-     * @return {[type]}                  [description]
-     */
-    constructor() {
-        const self = this
-            // this.groups = _.invertBy(targetList.targets); // Target components, ordered per group
-        this.targetCategories = targetCategories
-        this.categoryTargets = _.invertBy(targetCategories)
-        this.categories = _.uniq(_.keys(targetCategories))
 
-        // TODO move these to a metadata obj in a property or else prefix with md
-        this.targetIndex = _.map(_.keys(targetList.targets), path => self.pathToGroupAndCategories(path))
-        this.targetImages = targetList.images // Images list
-        this.targetsByTag = invertByMany(targetList.targets)
-        this.targetsUrls = _.keys(targetList.targets) // List of target files
-        this.targetsByPath = _.groupBy(this.targetIndex, i => i.path)
-        this.targetGroups = _(this.targetsUrls)
-            .map(path => new Target(self.pathToGroupAndCategories(path)))
-            .groupBy(gc => gc.group)
-            .value()
-    }
+//* Contains meta data about all available targets
+class TargetMetaData {
+  //  * [constructor description]
+  //  * @param  {[type]} targetList       [description]
+  //  * @param  {[type]} targetCategories [description]
+  //  * @return {[type]}                  [description]
 
-    /**
-     * extract the path for a mprh target to categories and groups
-     * @param  {string} path  e.g. 'data/targets/macrodetails/height/female-old-averagemuscle-averageweight-minheight.target'
-     * @return {[type]}      {key:"macrodetails,height",data:{'weight': 'averageweight',..}
-     */
+  constructor() {
+    const self = this
+    // this.groups = _.invertBy(targetList.targets); // Target components, ordered per group
+    this.targetCategories = targetCategories
+    this.categoryTargets = _.invertBy(targetCategories)
+    this.categories = _.uniq(_.keys(targetCategories))
+
+    // TODO move these to a metadata obj in a property or else prefix with md
+    this.targetIndex = _.map(_.keys(targetList.targets), path => self.pathToGroupAndCategories(path))
+    this.targetImages = targetList.images // Images list
+    this.targetsByTag = invertByMany(targetList.targets)
+    this.targetsUrls = _.keys(targetList.targets) // List of target files
+    this.targetsByPath = _.groupBy(this.targetIndex, i => i.path)
+    this.targetGroups = _(this.targetsUrls)
+        .map(path => Target(self.pathToGroupAndCategories(path)))
+        .groupBy(gc => gc.group)
+        .value()
+  }
+
+    //  * extract the path for a mprh target to categories and groups
+    //  * @param  {string} path  e.g. 'data/targets/macrodetails/height/female-old-averagemuscle-averageweight-minheight.target'
+    //  * @return {[type]}      {key:"macrodetails,height",data:{'weight': 'averageweight',..}
     pathToGroupAndCategories(origPath) {
         // TODO refactor: data, key/groupName => categories, groups
         // lowercase
@@ -126,56 +130,54 @@ export class TargetMetaData {
         }
     }
 
-    /**
-     * Get targets that belong to the same group, and their factors
-     * @param  {String} path - target path e.g. data/targets/nose/nose-nostrils-angle-up.target'
-     * @return {Array}      [path,[factor1,factor2]],[path2,[factor1,factor2]]
-     * e.g. ['data/targets/nose/nose-nostrils-angle-up.target',['nose-nostrils-angle-up']]]
-     * see makehuman/gui/humanmodifier.py for more
-     */
-    findTargets(path) {
-        if (path === null) {
-            return []
-        }
-
-        let targetsList
-
-        try {
-            targetsList = this.getTargetsByGroup(path) || []
-        } catch (exc) {
-            // TODO check for keyerror or whatever this will return
-            console.debug('missing target %s', path)
-            targetsList = []
-        }
-
-        const result = []
-        for (let i = 0; i < targetsList.length; i += 1) {
-            const target = targetsList[i]
-            const factordependencies = _.concat(target.variables, [target.group])
-            result.push([target.path, factordependencies])
-        }
-        return result
+  //  * Get targets that belong to the same group, and their factors
+  //  * @param  {String} path - target path e.g. data/targets/nose/nose-nostrils-angle-up.target'
+  //  * @return {Array}      [path,[factor1,factor2]],[path2,[factor1,factor2]]
+  //  * e.g. ['data/targets/nose/nose-nostrils-angle-up.target',['nose-nostrils-angle-up']]]
+  //  * see makehuman/gui/humanmodifier.py for more
+  findTargets(path) {
+    if (path === null) {
+        return []
     }
 
-    /**
-     * get targets by groups e.g. "armslegs,r,upperarms,fat"
-     * @param  {String} group Comma seperated string of keys e.g. "armslegs,r,upperarms,fat"
-     * @return {Array}       List of target objects
-     */
-    getTargetsByGroup(group) {
-        if (!group) return []
-        group = this.pathToGroupAndCategories(group).group
-        return this.targetGroups[group]
+    let targetsList
+
+    try {
+        targetsList = this.getTargetsByGroup(path) || []
+    } catch (exc) {
+        // TODO check for keyerror or whatever this will return
+        console.debug('missing target %s', path)
+        targetsList = []
     }
+
+    const result = []
+    for (let i = 0; i < targetsList.length; i += 1) {
+        const target = targetsList[i]
+        const factordependencies = _.concat(target.variables, [target.group])
+        result.push([target.path, factordependencies])
+    }
+    return result
+  }
+
+  //  * get targets by groups e.g. "armslegs,r,upperarms,fat"
+  //  * @param  {String} group Comma seperated string of keys e.g. "armslegs,r,upperarms,fat"
+  //  * @return {Array}       List of target objects
+  getTargetsByGroup(group) {
+    if (!group){ 
+      return [];
+    }
+    group = this.pathToGroupAndCategories(group).group;
+    return this.targetGroups[group];
+  }
 
 }
 
-export class Targets extends TargetMetaData {
+class Targets extends TargetMetaData {
     constructor(human) {
         super()
         this.human = human
 
-        this.lastBake = new Date().getTime()
+        this.lastBake = Date().getTime()
 
         // targets are stored here
         this.children = {}
@@ -183,17 +185,15 @@ export class Targets extends TargetMetaData {
         this.loading = false
 
         // for loading
-        this.manager = new THREE.LoadingManager()
-        this.bufferLoader = new THREE.XHRLoader(this.manager)
+        this.manager = THREE.LoadingManager()
+        this.bufferLoader = THREE.XHRLoader(this.manager)
         this.bufferLoader.setResponseType('arraybuffer')
     }
 
-    /**
-     * load all from a single file describing sparse data
-     * @param  {String} url  - url to bin file containing Int16 array
-     *                       nb_targets*nb_vertices*3 in length
-     * @return {Promise}     promise of an array of targets
-     */
+    //  * load all from a single file describing sparse data
+    //  * @param  {String} url  - url to bin file containing Int16 array
+    //  *                       nb_targets*nb_vertices*3 in length
+    //  * @return {Promise}     promise of an array of targets
     load(dataUrl = 'data/targets/targets.bin') {
         const self = this
         this.loading = true
@@ -207,18 +207,18 @@ export class Targets extends TargetMetaData {
         this.human.morphTargetDictionary = paths.reduce((a, p, i) => { a[p] = i; return a }, {})
         this.targetIndex.map(t => t.path).map((path) => {
             const config = self.pathToGroupAndCategories(path)
-            const target = new Target(config)
+            const target = Target(config)
             targets.push(target)
             target.parent = self
             self.children[target.name] = target
             return target
         })
 
-        self.human.morphTargetInfluences = new Float32Array(paths.length)
+        self.human.morphTargetInfluences = Float32Array(paths.length)
 
-        return new Promise((resolve, reject) => self.bufferLoader.load(dataUrl, resolve, undefined, reject))
+        return Promise((resolve, reject) => self.bufferLoader.load(dataUrl, resolve, undefined, reject))
         .then((data) => {
-            self.targetData = new Int16Array(data)
+            self.targetData = Int16Array(data)
             const loadedTargets = self.human.targets.targetData.length / 3 / self.human.mesh.geometry.vertices.length
             console.assert(
                 self.targetData.length % (3 * self.human.mesh.geometry.vertices.length) === 0,
@@ -242,66 +242,68 @@ export class Targets extends TargetMetaData {
     }
 
 
-    /**
-     * Updated vertices from applied targets. Should be called on render since it
-     * will only run if it's needed and more than a second has passed
-     */
-    applyTargets() {
-        // skip if it hasn't been rendered
-        if (!this.human ||
-            !this.human.mesh ||
-            !this.human.mesh.geometry ||
-            !this.human.mesh.geometry._bufferGeometry ||
-            !this.targetData
-        ) return false
+  //  * Updated vertices from applied targets. Should be called on render since it
+  //  * will only run if it's needed and more than a second has passed
+  bool applyTargets() {
+    // skip if it hasn't been rendered
+    if (!human ||
+      !human.mesh ||
+      !human.mesh.geometry ||
+      !human.mesh.geometry._bufferGeometry ||
+      !targetData
+    ) return false
 
-        // skip if less than a second since last
-        if ((new Date().getTime() - this.lastBake) < this.human.minUpdateInterval) return false
-
-        // check if it'schanged
-        if (_.isEqual(this.lastmorphTargetInfluences, this.human.morphTargetInfluences)) return false
-
-        // let [m,n] =  this.targetData.size
-        const m = this.human.geometry.vertices.length * 3
-        const n = this.human.morphTargetInfluences.length
-        const dVert = new Float32Array(m)
-
-        // What is targetData? It's all the makehuman targets, (ordered alphebetically by target path)
-        // put in an nb_targets X nb_vertices*3 array as Int16 then flattened written as bytes to a file.
-        //  We then load it as a binary buffer and load it into a javascript Int16 array.
-        // Now we can calculate new vertices by doing a dotproduct of
-        //     $morphTargetInfluences \cdot targetData *1e-3 $
-        // with shapes
-        //     $(nb_targets) \cdot (nb_target,nb_vertices*3) *1e-3 $
-        // where 1e-3 is the scaling factor to convert from Int16
-        // The upside is that the amount of data doesn't crash the browser like
-        // json, msgpack etc do. It's also relativly fast and bypasses threejs
-        // limit on the number of morphtargets you can have.
-
-        console.assert(this.targetData.length === m * n, `target data should be nb_targets*nb_vertices*3: ${m * n}`)
-        console.assert(_.sum(this.targetData.slice(3 * m, 4 * m)) === 2952)
-
-        // do the dot product over a flat targetData
-        for (let j = 0; j < n; j += 1) {
-            for (let i = 0; i < m; i += 1) {
-                if (this.human.morphTargetInfluences[j] !== 0 && this.targetData[i + j * m] !== 0) {
-                    dVert[i] += this.targetData[i + j * m] * this.human.morphTargetInfluences[j]
-                }
-            }
-        }
-
-        // update the vertices
-        const vertices = this.referenceVertices.map(v => v.clone())
-        for (let i = 0; i < vertices.length; i += 1) {
-            vertices[i].add({ x: dVert[i * 3] * 1e-3, y: dVert[i * 3 + 1] * 1e-3, z: dVert[i * 3 + 2] * 1e-3 })
-        }
-        this.human.geometry.vertices = vertices
-
-        // this.human.mesh.geometry.verticesNeedUpdate = true;
-        this.human.mesh.geometry.elementsNeedUpdate = true
-        this.lastmorphTargetInfluences = this.human.morphTargetInfluences.slice(0)
-        this.lastBake = new Date().getTime()
-
-        return true
+    // skip if less than a second since last
+    if ((DateTime.now() - lastBake) < this.human.minUpdateInterval){ 
+      return false;
     }
+
+    // check if it'schanged
+    if (_.isEqual(this.lastmorphTargetInfluences, this.human.morphTargetInfluences)){ 
+      return false;
+    }
+
+    // let [m,n] =  this.targetData.size
+    const m = this.human.geometry.vertices.length * 3;
+    const n = this.human.morphTargetInfluences.length;
+    const dVert = Float32Array(m);
+
+    // What is targetData? It's all the makehuman targets, (ordered alphebetically by target path)
+    // put in an nb_targets X nb_vertices*3 array as Int16 then flattened written as bytes to a file.
+    //  We then load it as a binary buffer and load it into a javascript Int16 array.
+    // Now we can calculate vertices by doing a dotproduct of
+    //     $morphTargetInfluences \cdot targetData *1e-3 $
+    // with shapes
+    //     $(nb_targets) \cdot (nb_target,nb_vertices*3) *1e-3 $
+    // where 1e-3 is the scaling factor to convert from Int16
+    // The upside is that the amount of data doesn't crash the browser like
+    // json, msgpack etc do. It's also relativly fast and bypasses threejs
+    // limit on the number of morphtargets you can have.
+
+    console.assert(this.targetData.length === m * n, `target data should be nb_targets*nb_vertices*3: ${m * n}`);
+    console.assert(_.sum(this.targetData.slice(3 * m, 4 * m)) === 2952);
+
+    // do the dot product over a flat targetData
+    for (int j = 0; j < n; j += 1) {
+      for (int i = 0; i < m; i += 1) {
+        if (this.human.morphTargetInfluences[j] != 0 && this.targetData[i + j * m] != 0) {
+          dVert[i] += this.targetData[i + j * m] * this.human.morphTargetInfluences[j];
+        }
+      }
+    }
+
+    // update the vertices
+    const vertices = this.referenceVertices.map(v => v.clone());
+    for (int i = 0; i < vertices.length; i += 1) {
+        vertices[i].add({ x: dVert[i * 3] * 1e-3, y: dVert[i * 3 + 1] * 1e-3, z: dVert[i * 3 + 2] * 1e-3 });
+    }
+    this.human.geometry.vertices = vertices;
+
+    // this.human.mesh.geometry.verticesNeedUpdate = true;
+    this.human.mesh.geometry.elementsNeedUpdate = true;
+    this.lastmorphTargetInfluences = this.human.morphTargetInfluences.slice(0);
+    this.lastBake = Date().getTime();
+
+    return true;
+  }
 }

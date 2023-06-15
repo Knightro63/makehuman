@@ -18,7 +18,7 @@ class Factors {
     _setBodyProportionVals();
   }
 
-  BaseHuman human;
+  Human human;
 
   int minAge = 1;
   int maxAge = 90;
