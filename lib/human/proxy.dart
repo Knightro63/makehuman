@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:three_dart/three_dart.dart' as THREE;
+import 'package:three_dart/three_dart.dart' as three;
 import 'human.dart';
 
 
@@ -33,11 +33,11 @@ Map<String,String> parseProxyUrl(String address){
     };
 }
 
-class Proxy extends THREE.Object3D {
-  Proxy(this.url, this.human, [THREE.LoadingManager? manager]):super(){
+class Proxy extends three.Object3D {
+  Proxy(this.url, this.human, [three.LoadingManager? manager]):super(){
     visible = false;
-    this.manager = manager ?? THREE.LoadingManager();
-    loader = THREE.FileLoader(this.manager);
+    this.manager = manager ?? three.LoadingManager();
+    loader = three.FileLoader(this.manager);
     url = '${human.config.baseUrl}proxies/$key';
 
     final proxy = parseProxyUrl(url);
@@ -49,11 +49,11 @@ class Proxy extends THREE.Object3D {
   }
 
   Human human;
-  late THREE.FileLoader loader;
+  late three.FileLoader loader;
   List<double> extraGeometryScaling = [1.0, 1.0, 1.0];
   Map<String,dynamic> metadata = {};
-  THREE.Mesh? mesh;
-  THREE.LoadingManager manager = THREE.LoadingManager();
+  three.Mesh? mesh;
+  three.LoadingManager manager = three.LoadingManager();
 
   late String key;
   String url;
@@ -83,8 +83,8 @@ class Proxy extends THREE.Object3D {
                 const texturePath = self.texturePath &&
                     (typeof self.texturePath == 'string') ?
                         self.texturePath :
-                        THREE.Loader.prototype.extractUrlBase(self.url);
-                return new THREE.JSONLoader().parse(json, texturePath);
+                        three.Loader.prototype.extractUrlBase(self.url);
+                return new three.JSONLoader().parse(json, texturePath);
             })
             // use unpacking here to turn one args into two, as promises only return one
             .then(({
@@ -94,7 +94,7 @@ class Proxy extends THREE.Object3D {
                 geometry.name = self.url
                 materials.map(m => (m.skinning = true))
 
-                const mesh = new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials))
+                const mesh = new three.SkinnedMesh(geometry, new three.MultiMaterial(materials))
 
                 // TODO check they are the same skeletons
                 mesh.children.pop() // pop existing skeleton
@@ -157,13 +157,13 @@ class Proxy extends THREE.Object3D {
 
         // convert this.matrix to Matrix3
         const mw = this.matrix.elements
-        const matrix = new THREE.Matrix3()
+        const matrix = new three.Matrix3()
         matrix.set(mw[0], mw[1], mw[2], mw[4], mw[5], mw[6], mw[8], mw[9], mw[10]).transpose()
         const m = matrix.elements
 
         for (let i = 0; i < this.mesh.geometry.vertices.length; i++) {
             // xyz offsets calculated as dot(matrix, offsets)
-            const vertice = new THREE.Vector3(
+            const vertice = new three.Vector3(
                 o[i][0] * m[0] + o[i][1] * m[1] + o[i][2] * m[2],
                 o[i][0] * m[3] + o[i][1] * m[4] + o[i][2] * m[5],
                 o[i][0] * m[6] + o[i][1] * m[7] + o[i][2] * m[8]
@@ -197,7 +197,7 @@ class Proxy extends THREE.Object3D {
   }
 
   @override
-  void onAfterRender(THREE.Camera? camera, dynamic geometry, dynamic group, dynamic material, THREE.WebGLRenderer? renderer, dynamic scene) {
+  void onAfterRender(three.Camera? camera, dynamic geometry, dynamic group, dynamic material, three.WebGLRenderer? renderer, dynamic scene) {
     super.onAfterRender();
   }
 }
@@ -206,7 +206,7 @@ class Proxy extends THREE.Object3D {
 /**
  * Container for proxies
  */
-class Proxies extends THREE.Object3D {
+class Proxies extends three.Object3D {
   Proxies(this.human):super(){
     // init an object for each proxy but don't load untill needed
     human.config.proxies

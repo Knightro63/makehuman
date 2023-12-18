@@ -1,7 +1,6 @@
-import 'package:flutter/foundation.dart';
-
+import 'dart:math' as Math;
 import 'human.dart';
-import 'package:three_dart/three_dart.dart' as THREE;
+import 'package:three_dart/three_dart.dart' as three;
 
 enum Ethnicity{asian,african,caucasian}
 enum Gender{male,female}
@@ -43,15 +42,48 @@ class Factors {
   // //////////////////////////////////
   // Non getter and setter functions //
   // //////////////////////////////////
+  double maleVal = 1;
+  double femaleVal = 0;
+
+  double oldVal = 0;
+  double babyVal = 0;
+  double youngVal = 0;
+  double childVal = 0;
+
+  double maxweightVal = 1;
+  double minweightVal = 0;
+  double averageweightVal = 0.5;
+
+  double maxMuscleVal = 1;
+  double minMuscleVal = 0;
+  double averageMuscleVal = 0.5;
+
+  double maxHeightVal = 1;
+  double minHeightVal = 0;
+  double averageHeightVal = 0.5;
+
+  double maxCupVal = 1;
+  double minCupVal = 0;
+  double averageCupVal = 0.5;
+
+  double maxFirmnessVal = 1;
+  double minFirmnessVal = 0;
+  double averageFirmnessVal = 0.5;
+
+  double idealProportionsVal = 1;
+  double uncommonProportionsVal = 0;
+  double regularProportionsVal = 0.5;
+
+  bool blockEthnicUpdates = false;
 
   ///The height approximatly in  cm.
   double getHeightCm() {
-    THREE.Box3 bBox = getBoundingBox();
+    three.Box3 bBox = getBoundingBox();
     return 10 * (bBox.max.y - bBox.min.y);
   }
 
   ///Bounding box of the basemesh without the helper groups
-  THREE.Box3 getBoundingBox() {
+  three.Box3 getBoundingBox() {
     if (human.mesh?.geometry?.boundingBox != null) {
       human.mesh!.geometry!.computeBoundingBox(); 
     }
@@ -134,13 +166,13 @@ class Factors {
   ///@param {Number}  gender  -  0 for female to 1 for male
   void setGender(double gender, [bool updateModifier = true]) {
     if (updateModifier) {
-      const modifier = human.modifiers.children['macrodetails/Gender'];
+      final modifier = human.modifiers.children['macrodetails/Gender'];
       modifier.setValue(gender);
       // human.targets.applyAll()
       return;
     }
 
-    gender = clampDouble(gender,0,1);//_.clamp(gender, 0, 1)
+    gender = gender.clamp(0, 1);//_.clamp(gender, 0, 1)
     if(_gender == gender) { 
       return; 
     }
@@ -175,13 +207,13 @@ class Factors {
   ///@param {Number}  age                   - 0 for 0 years old to 1 for 70 years old
   void setAge(double age, [bool updateModifier = true]) {
     if (updateModifier) {
-      const modifier = human.modifiers.children['macrodetails/Age'];
+      final modifier = human.modifiers.children['macrodetails/Age'];
       modifier.setValue(age);
       // human.targets.applyAll()
       return;
     }
 
-    age = clampDouble(age, 0, 1);
+    age = age.clamp(0, 1);
     if(_age == age) {
       return;
     }
@@ -219,13 +251,13 @@ class Factors {
   ///@param {Boolean} [updateModifier=true] [description]
   void setWeight(double weight, [bool updateModifier = true]) {
     if (updateModifier) {
-      const modifier = human.modifiers.children['macrodetails-universal/Weight'];
+      final modifier = human.modifiers.children['macrodetails-universal/Weight'];
       modifier.setValue(weight, false);
       // human.targets.applyAll()
       return;
     }
 
-    weight = clampDouble(weight, 0, 1);
+    weight = weight.clamp(0, 1);
     if (_weight == weight) {
         return;
     }
@@ -245,15 +277,15 @@ class Factors {
 
   ///Muscle from 0 to 1
   ///@param {Number}  muscle                - 0 to 1
-  void setMuscle(muscle, [bool updateModifier = true]) {
+  void setMuscle(double muscle, [bool updateModifier = true]) {
     if (updateModifier) {
-      const modifier = human.modifiers.children['macrodetails-universal/Muscle'];
+      final modifier = human.modifiers.children['macrodetails-universal/Muscle'];
       modifier.setValue(muscle, false);
       // human.targets.applyAll()
       return;
     }
 
-    muscle = clampDouble(muscle, 0, 1);
+    muscle = muscle.clamp(0,1);
     if (_muscle == muscle) {
       return;
     }
@@ -266,20 +298,20 @@ class Factors {
   }
 
   _setMuscleVals() {
-    maxmuscleVal = Math.max(0, _muscle * 2 - 1);
-    minmuscleVal = Math.max(0, 1 - _muscle * 2);
-    averagemuscleVal = 1 - (maxmuscleVal + minmuscleVal);
+    maxMuscleVal = Math.max(0, _muscle * 2 - 1);
+    minMuscleVal = Math.max(0, 1 - _muscle * 2);
+    averageMuscleVal = 1 - (maxMuscleVal + minMuscleVal);
   }
 
   void setHeight(double height, [bool updateModifier = true]) {
     if (updateModifier) {
-      const modifier = human.modifiers.children['macrodetails-height/Height'];
+      final modifier = human.modifiers.children['macrodetails-height/Height'];
       modifier.setValue(height, false);
       // human.targets.applyAll()
       return;
     }
 
-    height = clampDouble(height, 0, 1);
+    height = height.clamp(0,1);
     if (_height == height) {
       return;
     }
@@ -292,25 +324,25 @@ class Factors {
   }
 
   void _setHeightVals() {
-    maxheightVal = Math.max(0, _height * 2 - 1);
-    minheightVal = Math.max(0, 1 - _height * 2);
-    if (maxheightVal > minheightVal) {
-      averageheightVal = 1 - maxheightVal;
+    maxHeightVal = Math.max(0, _height * 2 - 1);
+    minHeightVal = Math.max(0, 1 - _height * 2);
+    if (maxHeightVal > minHeightVal) {
+      averageHeightVal = 1 - maxHeightVal;
     } 
     else {
-      averageheightVal = 1 - minheightVal;
+      averageHeightVal = 1 - minHeightVal;
     }
   }
 
   void setBreastSize(double size, [bool updateModifier = true]) {
     if (updateModifier) {
-      const modifier = human.modifiers.children['breast/BreastSize'];
+      final modifier = human.modifiers.children['breast/BreastSize'];
       modifier.setValue(size, false);
       // human.targets.applyAll()
       return;
     }
 
-    size = clampDouble(size, 0, 1);
+    size = size.clamp(0, 1);
     if (_breastSize == size) {
       return;
     }
@@ -323,25 +355,25 @@ class Factors {
   }
 
   void _setBreastSizeVals() {
-    maxcupVal = Math.max(0, _breastSize * 2 - 1);
-    mincupVal = Math.max(0, 1 - _breastSize * 2);
-    if (maxcupVal > mincupVal) { 
-      averagecupVal = 1 - maxcupVal 
+    maxCupVal = Math.max(0, _breastSize * 2 - 1);
+    minCupVal = Math.max(0, 1 - _breastSize * 2);
+    if (maxCupVal > minCupVal) { 
+      averageCupVal = 1 - maxCupVal;
     } 
     else {
-      averagecupVal = 1 - mincupVal;
+      averageCupVal = 1 - minCupVal;
     }
   }
 
   void setBreastFirmness(double firmness, [bool updateModifier = true]) {
     if (updateModifier) {
-      const modifier = human.modifiers.children['breast/BreastFirmness'];
+      final modifier = human.modifiers.children['breast/BreastFirmness'];
       modifier.setValue(firmness, false);
       // human.targets.applyAll()
       return;
     }
 
-    firmness = clampDouble(firmness, 0, 1);
+    firmness = firmness.clamp(0,1);
     if (_breastFirmness == firmness) {
       return;
     }
@@ -354,26 +386,26 @@ class Factors {
   }
 
   _setBreastFirmnessVals() {
-    maxfirmnessVal = Math.max(0, _breastFirmness * 2 - 1)
-    minfirmnessVal = Math.max(0, 1 - _breastFirmness * 2)
+    maxFirmnessVal = Math.max(0, _breastFirmness * 2 - 1);
+    minFirmnessVal = Math.max(0, 1 - _breastFirmness * 2);
 
-    if (maxfirmnessVal > minfirmnessVal) { 
-      averagefirmnessVal = 1 - maxfirmnessVal 
+    if (maxFirmnessVal > minFirmnessVal) { 
+      averageFirmnessVal = 1 - maxFirmnessVal;
     } 
     else {
-      averagefirmnessVal = 1 - minfirmnessVal;
+      averageFirmnessVal = 1 - minFirmnessVal;
     }
   }
 
   void setBodyProportions(double proportion, [bool updateModifier = true]) {
     if (updateModifier) {
-      const modifier = human.modifiers.children['macrodetails-proportions/BodyProportions'];
+      final modifier = human.modifiers.children['macrodetails-proportions/BodyProportions'];
       modifier.setValue(proportion, false);
       // human.targets.applyAll()
       return;
     }
 
-    proportion = THREE.Math.min(1, THREE.Math.max(0, proportion));
+    proportion = three.Math.min(1, three.Math.max(0, proportion));
     if (_bodyProportions == proportion) {
       return;
     }
@@ -382,14 +414,14 @@ class Factors {
   }
 
   void _setBodyProportionVals() {
-    idealproportionsVal = Math.max(0, _bodyProportions * 2 - 1);
-    uncommonproportionsVal = Math.max(0, 1 - _bodyProportions * 2);
+    idealProportionsVal = Math.max(0, _bodyProportions * 2 - 1);
+    uncommonProportionsVal = Math.max(0, 1 - _bodyProportions * 2);
 
-    if (idealproportionsVal > uncommonproportionsVal) {
-      regularproportionsVal = 1 - idealproportionsVal;
+    if (idealProportionsVal > uncommonProportionsVal) {
+      regularProportionsVal = 1 - idealProportionsVal;
     } 
     else { 
-      regularproportionsVal = 1 - uncommonproportionsVal ;
+      regularProportionsVal = 1 - uncommonProportionsVal ;
     }
   }
 
@@ -399,13 +431,13 @@ class Factors {
 
   void setCaucasian(double caucasian, [bool updateModifier = true,bool sync = true]) {
     if (updateModifier) {
-      const modifier = human.modifiers.children['macrodetails/Caucasian'];
+      final modifier = human.modifiers.children['macrodetails/Caucasian'];
       modifier.setValue(caucasian, false);
       // human.targets.applyAll()
       return;
     }
 
-    caucasian = clampDouble(caucasian, 0, 1);
+    caucasian = caucasian.clamp(0, 1);
     caucasianVal = caucasian;
 
     if (sync && !blockEthnicUpdates) {
@@ -419,13 +451,13 @@ class Factors {
 
   void setAfrican(double african, [bool updateModifier = true, bool sync = true]) {
     if (updateModifier) {
-      const modifier = human.modifiers.children['macrodetails/African'];
+      final modifier = human.modifiers.children['macrodetails/African'];
       modifier.setValue(african, false);
       // human.targets.applyAll()
       return;
     }
 
-    african = clampDouble(african, 0, 1);
+    african = african.clamp(0, 1);
     africanVal = african;
 
     if (sync && !blockEthnicUpdates) {
@@ -439,13 +471,13 @@ class Factors {
 
   double? setAsian(double asian, [bool updateModifier = true, bool sync = true]) {
     if (updateModifier) {
-      const modifier = human.modifiers.children['macrodetails/Asian'];
+      final modifier = human.modifiers.children['macrodetails/Asian'];
       modifier.setValue(asian, false);
       // human.targets.applyAll()
       return null;
     }
 
-    asianVal = clampDouble(asian, 0, 1);
+    asianVal = asian.clamp(0,1);
 
     if (sync && !blockEthnicUpdates) {
       _setEthnicVals('asian');
@@ -458,46 +490,50 @@ class Factors {
   }
 
   ///Normalize ethnic values so that they sum to 1.
-  void _setEthnicVals(exclude) {
-    const _getVal = ethnic => this[`${ethnic}Val`];
-    const _setVal = (ethnic, value) => this[`${ethnic}Val`] = value;
+  void _setEthnicVals([String? exclude]) {
+    double _getVal(ethnic){
+      return this[`${ethnic}Val`];
+    }
+    void _setVal(ethnic, value){
+      this[`${ethnic}Val`] = value;
+    }
 
-    bool _closeTo(double value, double limit, [double epsilon = 0.001]) {
-      return THREE.Math.abs(value - limit) <= epsilon;
+    bool closeTo(double value, double limit, [double epsilon = 0.001]) {
+      return three.Math.abs(value - limit) <= epsilon;
     }
 
     const ethnics = ['african', 'asian', 'caucasian'];
-    let remaining = 1;
-    if (exclude) {
-      _.pull(ethnics, exclude);
+    double remaining = 1;
+    if(exclude != null) {
+      ethnics.remove(exclude);
     }
     remaining = 1 - _getVal(exclude);
 
-    const otherTotal = _.sum(ethnics.map(e => _getVal(e)));
+    final otherTotal = ethnics.map((e){_getVal(e);});
     if (otherTotal == 0) {
       // Prevent division by zero
       if (ethnics.length == 3 || _getVal(exclude) == 0) {
         // All values 0, this cannot be. Reset to default values.
-        ethnics.forEach((e) => {
-          _setVal(e, 1 / 3)
+        ethnics.forEach((e){
+          _setVal(e, 1 / 3);
         });
-        if (exclude) {
+        if (exclude != null) {
           _setVal(exclude, 1 / 3);
         }
       } 
-      else if (exclude && _closeTo(_getVal(exclude), 1)) {
+      else if (exclude != null && closeTo(_getVal(exclude), 1)) {
         // One ethnicity is 1, the rest is 0
-        ethnics.forEach(e => _setVal(e, 0));
+        ethnics.forEach((e){_setVal(e, 0);});
         _setVal(exclude, 1);
       } 
       else {
         // Increase values of other races (that were 0) to hit total sum of 1
-        ethnics.forEach(e => _setVal(e, 0.01));
+        ethnics.forEach((e){_setVal(e, 0.01);});
         _setEthnicVals(exclude); // Re-normalize
       }
     } 
     else {
-      ethnics.map(e => _setVal(e, remaining * (_getVal(e) / otherTotal)))
+      ethnics.map((e){_setVal(e, remaining * (_getVal(e) / otherTotal));});
     }
   }
 

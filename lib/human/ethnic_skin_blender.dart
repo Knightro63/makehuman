@@ -1,10 +1,10 @@
 import 'package:makehuman/makehuman.dart';
-import 'package:three_dart/three_dart.dart' as THREE;
+import 'package:three_dart/three_dart.dart' as three;
 
 // these are set to look right when added to the caucasian skin
-THREE.Color asianColor = THREE.Color().setHSL(0.078, 0.34, 0.576);
-THREE.Color africanColor = THREE.Color().setHSL(0.09, 0.83, 0.21);
-THREE.Color caucasianColor = THREE.Color().setHSL(0.062, 0.51, 0.68);
+three.Color asianColor = three.Color().setHSL(0.078, 0.34, 0.576);
+three.Color africanColor = three.Color().setHSL(0.09, 0.83, 0.21);
+three.Color caucasianColor = three.Color().setHSL(0.062, 0.51, 0.68);
 
 
 class EthnicSkinBlender {
@@ -13,7 +13,7 @@ class EthnicSkinBlender {
 
   Human human;
 
-  THREE.Color valueOf() {
+  three.Color valueOf() {
     List<double> blends = [
       human.factors.getCaucasian(),
       human.factors.getAfrican(),
@@ -21,7 +21,7 @@ class EthnicSkinBlender {
     ];
 
     // Set diffuse color
-    THREE.Color color = THREE.Color(0, 0, 0)
+    three.Color color = three.Color(0, 0, 0)
         .add(caucasianColor.clone().multiplyScalar(blends[0]))
         .add(africanColor.clone().multiplyScalar(blends[1]))
         .add(asianColor.clone().multiplyScalar(blends[2]));
