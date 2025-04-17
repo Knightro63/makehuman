@@ -1,5 +1,5 @@
 import 'package:makehuman/makehuman.dart';
-import 'package:three_dart/three_dart.dart' as three;
+import 'package:three_js/three_js.dart' as three;
 
 // these are set to look right when added to the caucasian skin
 three.Color asianColor = three.Color().setHSL(0.078, 0.34, 0.576);
@@ -22,9 +22,9 @@ class EthnicSkinBlender {
 
     // Set diffuse color
     three.Color color = three.Color(0, 0, 0)
-        .add(caucasianColor.clone().multiplyScalar(blends[0]))
-        .add(africanColor.clone().multiplyScalar(blends[1]))
-        .add(asianColor.clone().multiplyScalar(blends[2]));
+        .add(caucasianColor.clone()..scale(blends[0]))
+        .add(africanColor.clone()..scale(blends[1]))
+        .add(asianColor.clone()..scale(blends[2]));
     // clamp to [0,1]
     return color.fromArray(color.toArray().map((e) => e.clamp(0, 1)));
   }
